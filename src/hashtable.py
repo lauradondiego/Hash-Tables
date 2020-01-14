@@ -110,7 +110,25 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        index = self._hash_mod(key)
+        if self.storage[index] is None:
+            return
+
+        head = self.storage[index]
+        if head.key == key:
+            self.storage[index] = head.next
+            return
+
+        current = self.storage[index]
+        previous = head
+        while current:
+            if current.key == key:
+                previous.next = current.next
+                return
+
+            else:
+                previous = current
+                current = current.next
 
     def retrieve(self, key):
         '''
