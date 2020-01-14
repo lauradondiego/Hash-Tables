@@ -7,7 +7,8 @@ class LinkedPair:
     def __init__(self, key, value):
         self.key = key
         self.value = value
-        self.next = None
+        self.next = None  # this is for collision, creates a new node
+        # ^ both stored at the same index, except now you can create a linked list
 
 
 class HashTable:
@@ -17,9 +18,15 @@ class HashTable:
     '''
 
     def __init__(self, capacity):
-        self.capacity = capacity  # Number of buckets in the hash table
-        self.storage = [None] * capacity # the actual values being placed in the buckets
+        self.capacity = capacity  # Number of buckets in the hash table how big the array is
+        # gives you empty slots.the actual values being placed in the buckets
+        self.storage = [None] * capacity
+        # ^ if the capacity is 100, storage gives you an array with 100 empty slots - this is the hash table
+        # ^ you will store the key,value pair in here
         self.count = 0  # added this
+        # ^ means storage is empty
+        # ^ increase the counter by 1 in the insert method self.count += 1
+        # ^ and remove function is self.count -= 1
 
     def _hash(self, key):
         '''
@@ -27,6 +34,7 @@ class HashTable:
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
         return hash(key)
+        # python's automated hash algo - returns a hashed value
 
     def _hash_djb2(self, key):
         '''
@@ -42,6 +50,7 @@ class HashTable:
         within the storage capacity of the hash table.
         '''
         return self._hash(key) % self.capacity
+        # hashing a value to an index, that will fit inside the storage
 
     def insert(self, key, value):
         '''
@@ -51,25 +60,47 @@ class HashTable:
 
         Fill this in.
         '''
-        print("key/value:", key, value)
         index = self._hash_mod(key)
-        pairs = [key, value]
-        print("index:", index)
-        # current_pair = self.storage[index]
-        # last_pair = 
+        new_node = LinkedPair(key, value)
 
-        if self.count >= self.capacity:
-            self.resize()  # you made this function below
-            # print("Error, array is full!")
-            # return
-        # for i in range(self.count, index, -1):
-        #     self.storage[i] = self.storage[i-1]
-        # ^ now shift everything to the right
-        print("capacity", self.capacity)
-        self.storage[index] = pairs
-        print("self.storage", self.storage)
-        self.count += 1
-        # ^ insert the value
+        if self.storage[index] == None:
+            self.storage[index] = new_node
+            self.count += 1
+        else:
+            temp = self.storage[index]
+            if temp.key == key:
+                self.storage[index].value = value
+                return None
+            else:
+                while temp.next != None:
+                    temp = temp.next
+                    if temp.key == key:
+                        temp.value = value
+                        return None
+            temp.next = new_node
+            self.count += 1
+
+        return None
+        # print("key/value:", key, value)
+        # index = self._hash_mod(key) # this gives you an index position, where to insert
+        # # the key is the only thing that gets hashed
+        # pairs = [key, value]
+        # print("index:", index)
+        # # current_pair = self.storage[index]
+        # # last_pair =
+
+        # if self.count >= self.capacity:
+        #     self.resize()  # you made this function below
+        #     # print("Error, array is full!")
+        #     # return
+        # # for i in range(self.count, index, -1):
+        # #     self.storage[i] = self.storage[i-1]
+        # # ^ now shift everything to the right
+        # print("capacity", self.capacity)
+        # self.storage[index] = pairs
+        # print("self.storage", self.storage)
+        # self.count += 1
+        # # ^ insert the value
 
     def remove(self, key):
         '''
@@ -93,16 +124,14 @@ class HashTable:
         index = self._hash_mod(key)
         print("index:", index, key)
         pairs = self.storage[index]
-    
+
         if pairs is not None and key == pairs[0]:
-            return pairs[1] # pairs[1] = value
+            return pairs[1]  # pairs[1] = value
         else:
             return None
 
         print("storage 0", pairs)
-        return pairs[1] # index 1 = values
-
-
+        return pairs[1]  # index 1 = values
 
     def resize(self):
         '''
@@ -137,16 +166,16 @@ if __name__ == "__main__":
     print("")
     # ht.retrieve("laura")
     # Test storing beyond capacity
-    print(ht.retrieve("line_1"))
-    print(ht.retrieve("line_2"))
-    print(ht.retrieve("line_3"))
+    # print(ht.retrieve("line_1"))
+    # print(ht.retrieve("line_2"))
+    # print(ht.retrieve("line_3"))
 
     # Test resizing
-    # old_capacity = len(ht.storage)
+    old_capacity = len(ht.storage)
     # ht.resize()
-    # new_capacity = len(ht.storage)
+    new_capacity = len(ht.storage)
 
-    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
     # Test if data intact after resizing
     # print(ht.retrieve("line_1"))
