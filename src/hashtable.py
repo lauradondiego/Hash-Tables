@@ -23,6 +23,7 @@ class HashTable:
         self.storage = [None] * capacity
         # ^ if the capacity is 100, storage gives you an array with 100 empty slots - this is the hash table
         # ^ you will store the key,value pair in here
+        # ^ storage is an array
         self.count = 0  # added this
         # ^ means storage is empty
         # ^ increase the counter by 1 in the insert method self.count += 1
@@ -61,23 +62,28 @@ class HashTable:
         Fill this in.
         '''
         index = self._hash_mod(key)
+        print("index", index)
+        print("key", key)
+        # creating LinkedPair object or a node
         new_node = LinkedPair(key, value)
 
-        if self.storage[index] == None:
+        if self.storage[index] == None:  # if the value is None in the index that was hashed
+            # inserting that value in the empty node line 64
             self.storage[index] = new_node
-            self.count += 1
+            self.count += 1  # use this if you're implementing resize()
         else:
-            temp = self.storage[index]
-            if temp.key == key:
+            # this is seeing if the index is the same
+            current_node = self.storage[index]
+            if current_node.key == key:  # then replace the value at that index
                 self.storage[index].value = value
-                return None
+                return value  # returns new value we are replacing
             else:
-                while temp.next != None:
-                    temp = temp.next
-                    if temp.key == key:
-                        temp.value = value
+                while current_node.next != None:  # if the keys = the same index value, we need to add my
+                    current_node = current_node.next  # key,value pair to the linked list
+                    if current_node.key == key:
+                        current_node.value = value
                         return None
-            temp.next = new_node
+            current_node.next = new_node
             self.count += 1
 
         return None
@@ -140,16 +146,21 @@ class HashTable:
         '''
         # pairs refers to key/value pairs
         index = self._hash_mod(key)
-        print("index:", index, key)
-        pairs = self.storage[index]
+        # print("index:", index, key)
+        current_node = self.storage[index]
 
-        if pairs is not None and key == pairs[0]:
-            return pairs[1]  # pairs[1] = value
-        else:
+        while current_node is not None and key != current_node.key:
+            current_node = current_node.next  # points to next node in the chain
+        if current_node is None:
             return None
-
-        print("storage 0", pairs)
-        return pairs[1]  # index 1 = values
+        if key == current_node.key:
+            return current_node.value
+        # if pairs is not None and key == pairs.key:
+        #     return pairs.value  # pairs[1] = value
+        # else:
+        #     return None
+        # print("storage 0", pairs)
+        # return pairs[1]  # index 1 = values
 
     def resize(self):
         '''
@@ -161,22 +172,27 @@ class HashTable:
         # make another block a memory that is double the current capacity
         self.capacity *= 2
         new_storage = [None] * self.capacity
-        # copy everything over below
-        print("capacity2", self.capacity)
-        for i in range(self.count):
-            pairs = self.storage[i]
-            key = pairs[0]
-            print("key", key)
-            index = self._hash_mod(key)
-            new_storage[index] = pairs
-        self.storage = new_storage  # point to new storage
-        print("capacity3", self.capacity)
+        old_storage = self.storage
+        self.storage = new_storage
+
+        for current_node in old_storage:  # bucket is a linked list or None, old_storage is a list
+            if current_node is None:
+                # return None
+                pass
+            else:
+                while current_node is not None:  # current_node is the linked list
+                    key = current_node.key
+                    value = current_node.value
+                    # insert is the def we wrote coming from the class
+                    self.insert(key, value)
+                    current_node = current_node.next
 
 
 if __name__ == "__main__":
     ht = HashTable(2)
     # initializing it to 2 up here
     # print(ht.storage)
+    print("insert\n")
     ht.insert("line_1", "Tiny hash table")
     ht.insert("line_2", "Filled beyond capacity")
     ht.insert("line_3", "Linked list saves the day!")
@@ -184,20 +200,26 @@ if __name__ == "__main__":
     print("")
     # ht.retrieve("laura")
     # Test storing beyond capacity
-    # print(ht.retrieve("line_1"))
-    # print(ht.retrieve("line_2"))
-    # print(ht.retrieve("line_3"))
+    print("retrieve\n")
+    print(ht.retrieve("line_1"))
+    print(ht.retrieve("line_2"))
+    print(ht.retrieve("line_3"))
 
     # Test resizing
     old_capacity = len(ht.storage)
-    # ht.resize()
+    ht.resize()
     new_capacity = len(ht.storage)
 
     print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
     # Test if data intact after resizing
-    # print(ht.retrieve("line_1"))
-    # print(ht.retrieve("line_2"))
-    # print(ht.retrieve("line_3"))
+    print("retrieve\n")
+
+    print(ht.retrieve("line_1"))
+    print(ht.retrieve("line_2"))
+    print(ht.retrieve("line_3"))
 
     print("")
+
+# dictionary = {"name": "Laura", "age": 27}
+# dictionary["name"]
